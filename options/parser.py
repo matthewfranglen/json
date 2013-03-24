@@ -110,9 +110,9 @@ class _OperatorState(ArgumentParserState):
     def parse(self, data):
         (string, data) = (data[0], data[1:])
 
-        assert string in _operators, 'invalid operator'
+        assert string in self._operators, 'invalid operator'
 
-        while data and string + data[0] in _operators:
+        while data and string + data[0] in self._operators:
             string += data[0]
             data    = data[1:]
         

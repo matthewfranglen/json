@@ -23,7 +23,15 @@ class TestParser(unittest.TestCase):
         self._test("[1, 2, 3] { 'key': 'value' } [ 4, 5, 6 ]", [("[1, 2, 3]", 'token'),("{ 'key': 'value' }", 'token'),("[ 4, 5, 6 ]", 'token')])
 
     def test_operator(self):
-        pass
+        self._test('==', [('==', 'operator')])
+        self._test('=',  [('=', 'operator')])
+        self._test('>',  [('>', 'operator')])
+        self._test('<',  [('<', 'operator')])
+        self._test('~',  [('~', 'operator')])
+        self._test('!',  [('!', 'operator')])
+        self._test(':',  [(':', 'operator')])
+
+        self._test('>>>', [('>', 'operator'),('>', 'operator'),('>', 'operator')])
 
     def test_invalid(self):
         pass
