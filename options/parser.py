@@ -77,7 +77,11 @@ class _NumberState(ArgumentParserState):
     """Captures numbers. Supports . and e"""
 
     def parse(self, data):
-        pass
+        match = re.match("(-?(?:\d+|\.\d+|\d+\.|\d+\.\d+)(?:[eE](?:\d+|\.\d+|\d+\.|\d+\.\d+))?)", data)
+        if match:
+            return ((match.group(0), 'number'), data[match.endpos:])
+
+        raise SyntaxError('Invalid number, %s' % data)
 
 class _TokenState(ArgumentParserState):
     """Captures tokens wrapped in delimiters where those delimiters vary. Things like { this } and [ this ]."""
