@@ -92,7 +92,7 @@ This forces the operator to be evaluated only against the children of the curren
 
 The following example expressions would all return "food":
 
-    = { type> "box" } > [0]
-    = { type> "container" } >> = { type> "box" } > [0]
-    = { type> "container" } >>> [0]
+    = { type: "box" } > [0]
+    = { type: "container" } >> = { type: "box" } > [0]
+    = { type: "container" } >>> [0]
 
