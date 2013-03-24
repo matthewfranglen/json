@@ -77,9 +77,10 @@ class _NumberState(ArgumentParserState):
     """Captures numbers. Supports . and e"""
 
     def parse(self, data):
-        match = re.match("(-?(?:\d+|\.\d+|\d+\.|\d+\.\d+)(?:[eE](?:\d+|\.\d+|\d+\.|\d+\.\d+))?)", data)
+        number = "(?:\d+\.\d+|\.\d+|\d+\.|\d+)"
+        match = re.match("^(-?%s(?:[eE]%s)?)(?![0-9.e])" % ( number, number ), data)
         if match:
-            return ((match.group(0), 'number'), data[match.endpos:])
+            return ((match.group(0), 'number'), data[match.end():])
 
         raise SyntaxError('Invalid number, %s' % data)
 
@@ -114,7 +115,8 @@ class _OperatorState(ArgumentParserState):
     def parse(self, data):
         (string, data) = (data[0], data[1:])
 
-        assert string in self._operators, 'invalid operator'
+        if not string in self._operators:
+            raise SyntaxError('Invalid Operator, %s' % string)
 
         while data and string + data[0] in self._operators:
             string += data[0]
