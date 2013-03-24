@@ -13,7 +13,13 @@ class TestParser(unittest.TestCase):
         self._test("'hello \\\'world\\\''", [("'hello \\\'world\\\''", 'string')])
 
     def test_number(self):
-        pass
+        self._test('-1',     [('-1', 'number')])
+        self._test('1',      [('1', 'number')])
+        self._test('1.0',    [('1.0', 'number')])
+        self._test('1.0e10', [('1.0e10', 'number')])
+        self._test('1e10.0', [('1e10.0', 'number')])
+
+        self._test('-100 0 1e10 2.02 3.33e33.3', [('-100', 'number'),('0', 'number'),('1e10', 'number'),('2.02', 'number'),('3.33e33.3', 'number')])
 
     def test_token(self):
         self._test("[1, 2, 3]",                                [("[1, 2, 3]", 'token')])
@@ -34,7 +40,29 @@ class TestParser(unittest.TestCase):
         self._test('>>>', [('>', 'operator'),('>', 'operator'),('>', 'operator')])
 
     def test_invalid(self):
-        pass
+        with self.assertRaises(SyntaxError):
+            parse_arguments('"hello')
+
+        with self.assertRaises(SyntaxError):
+            parse_arguments("'hello\\'")
+
+        with self.assertRaises(SyntaxError):
+            parse_arguments("1.0.1")
+
+        with self.assertRaises(SyntaxError):
+            parse_arguments("1e.0.1")
+
+        with self.assertRaises(SyntaxError):
+            parse_arguments("1e1e1")
+
+        with self.assertRaises(SyntaxError):
+            parse_arguments("[ 1, 2, 3 ")
+
+        with self.assertRaises(SyntaxError):
+            parse_arguments("{ 'key': 'value'")
+
+        with self.assertRaises(SyntaxError):
+            parse_arguments("bareword")
 
 if __name__ == '__main__':
     unittest.main()
