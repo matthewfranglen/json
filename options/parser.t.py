@@ -7,10 +7,10 @@ class TestParser(unittest.TestCase):
         self.assertEqual(tokens, expected)
 
     def test_string(self):
-       self._test("'hello'",               [("'hello'", 'string')])
-       self._test('"hello"',               [('"hello"', 'string')])
-       self._test("'hello' \"world\"",     [("'hello'", 'string'), ('"world"', 'string')])
-       self._test("'hello \\\'world\\\''", [("'hello \\\'world\\\''", 'string')])
+        self._test("'hello'",               [("'hello'", 'string')])
+        self._test('"hello"',               [('"hello"', 'string')])
+        self._test("'hello' \"world\"",     [("'hello'", 'string'), ('"world"', 'string')])
+        self._test("'hello \\\'world\\\''", [("'hello \\\'world\\\''", 'string')])
 
     def test_number(self):
         pass
