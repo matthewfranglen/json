@@ -87,8 +87,8 @@ class _TokenState(ArgumentParserState):
         (string, _) = (opener, data) = (data[0], data[1:])
         count       = 1
         
-        assert opener in _closers, 'invalid token opener'
-        closer = _closers[ opener ]
+        assert opener in self._closers, 'invalid token opener'
+        closer = self._closers[ opener ]
 
         while data:
             (current, data)  = (data[0], data[1:])
