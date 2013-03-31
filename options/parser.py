@@ -57,21 +57,11 @@ class _StringState(ArgumentParserState):
     """Captures strings, where they start and end with the same quote character. Permits escaping with \\."""
 
     def parse(self, data):
-        (string, _) = (quote, data) = (data[0], data[1:])
-        escaped     = 0
+        match = re.match( r'^(["\']).*?(\\\\|(?<!\\))\1', data )
+        if match:
+            return ((data[:match.end()], 'string'), data[match.end():])
 
-        assert re.match( '[\'"]', quote ), 'invalid string quote, %s' % quote
-
-        while data:
-            (current, data)  = (data[0], data[1:])
-            string          += current
-
-            if not escaped and current == quote:
-                return ((string, 'string'), data)
-
-            escaped = not escaped and current == '\\'
-
-        raise SyntaxError('Unterminated string, %s' % string)
+        raise SyntaxError('Invalid string, %s' % data)
 
 class _NumberState(ArgumentParserState):
     """Captures numbers. Supports . and e"""
