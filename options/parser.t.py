@@ -7,10 +7,20 @@ class TestParser(unittest.TestCase):
         self.assertEqual(tokens, expected)
 
     def test_string(self):
-        self._test("'hello'",               [("'hello'", 'string')])
-        self._test('"hello"',               [('"hello"', 'string')])
-        self._test("'hello' \"world\"",     [("'hello'", 'string'), ('"world"', 'string')])
-        self._test("'hello \\\'world\\\''", [("'hello \\\'world\\\''", 'string')])
+        self._test("'hello'",                             [("'hello'", 'string')])
+        self._test('"hello"',                             [('"hello"', 'string')])
+
+        for escapes in range(2):
+            escape = '\\\\' * escapes
+
+            self._test("'hello%s' \"world%s\"" % (escape, escape), 
+                    [("'hello%s'" % escape, 'string'), ('"world%s"' % escape, 'string')])
+            
+            self._test("'hello %s\\'world%s\\''" % (escape, escape), 
+                    [("'hello %s\\'world%s\\''" % (escape, escape), 'string')])
+
+            self._test("'hello %s\\\\'\"world%s\\\\\"" % (escape, escape),              
+                    [("'hello %s\\\\'" % escape, 'string'), ('"world%s\\\\"' % escape, 'string')])
 
     def test_number(self):
         self._test('-1',     [('-1', 'number')])
