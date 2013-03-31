@@ -104,7 +104,7 @@ class _TokenState(ArgumentParserState):
             elif current == closer:
                 count -= 1
                 if count <= 0:
-                    return ((string, 'token'), data)
+                    return ((parse_json(string), 'token'), data)
 
         raise SyntaxError('Unterminated token, %s' % string)
 

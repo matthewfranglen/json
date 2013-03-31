@@ -7,10 +7,10 @@ class TestParser(unittest.TestCase):
         self.assertEqual(tokens, expected)
 
     def test_string(self):
-        self._test("'hello'",                             [("'hello'", 'string')])
-        self._test('"hello"',                             [('"hello"', 'string')])
+        self._test("'hello'", [("'hello'", 'string')])
+        self._test('"hello"', [('"hello"', 'string')])
 
-        for escapes in range(2):
+        for escapes in range(10):
             escape = '\\\\' * escapes
 
             self._test("'hello%s' \"world%s\"" % (escape, escape), 
@@ -32,11 +32,11 @@ class TestParser(unittest.TestCase):
         self._test('-100 0 1e10 2.02 3.33e33.3', [('-100', 'number'),('0', 'number'),('1e10', 'number'),('2.02', 'number'),('3.33e33.3', 'number')])
 
     def test_token(self):
-        self._test("[1, 2, 3]",                                [("[1, 2, 3]", 'token')])
-        self._test("{ 'key': 'value' }",                       [("{ 'key': 'value' }", 'token')])
-        self._test("{ 'key': [1, 2, 3] }",                     [("{ 'key': [1, 2, 3] }", 'token')])
-        self._test("{ 'key': [1, 2, { 'key': 'value' } ] }",   [("{ 'key': [1, 2, { 'key': 'value' } ] }", 'token')])
-        self._test("[1, 2, 3] { 'key': 'value' } [ 4, 5, 6 ]", [("[1, 2, 3]", 'token'),("{ 'key': 'value' }", 'token'),("[ 4, 5, 6 ]", 'token')])
+        self._test('[1, 2, 3]',                                [([1, 2, 3], "token")])
+        self._test('{ "key": "value" }',                       [({ "key": "value" }, "token")])
+        self._test('{ "key": [1, 2, 3] }',                     [({ "key": [1, 2, 3] }, "token")])
+        self._test('{ "key": [1, 2, { "key": "value" } ] }',   [({ "key": [1, 2, { "key": "value" } ] }, "token")])
+        self._test('[1, 2, 3] { "key": "value" } [ 4, 5, 6 ]', [([1, 2, 3], "token"),({ "key": "value" }, "token"),([ 4, 5, 6 ], "token")])
 
     def test_operator(self):
         self._test('==', [('==', 'operator')])
