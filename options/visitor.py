@@ -147,15 +147,12 @@ class _MatchesVisitor(_ComparisonVisitor):
 class _NegateVisitor(_ComparisonVisitor):
     """Wraps another comparison and negates it"""
 
-comparison_map = {
+visitor_map = {
         '==': _EqualsVisitor,
         '=': _PermissiveEqualsVisitor,
         '<': _LessThanVisitor,
         '~': _MatchesVisitor,
     }
-movement_map = {
-        ':': _CurrentVisitor,
-        '>': 
 
 def visitor_factory(rules):
     """Creates the appropriate visitor for the rules provided"""
@@ -178,6 +175,7 @@ def visitor_factory(rules):
             return (_NegateVisitor(condition), rules)
         if rule in visitor_map:
             return (visitor_map[rule](rules[1]), rules[2:])
+        raise AssertionError('Unknown operator found, %s' % rule[0])
     else:
         raise AssertionError('Non operator found where operator expected')
 
