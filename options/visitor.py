@@ -2,6 +2,12 @@
 
 import abc
 import types
+import re
+
+def visit(rules, node):
+    """Visits the node according to the provided rules, returning the matches."""
+    (visitor, rules) = visitor_factory(rules)
+    return visitor.visit(rules, node, node, ())
 
 class Visitor():
     """Implements the visitor code, which can be completed by a specific subclass."""
@@ -16,16 +22,15 @@ class Visitor():
             last    - the node that triggered the last rule change (i.e. the last accepted node)
             parents - the list of parent nodes, all the way to the root.
         """
-        self.do_visit(rules, node, last, parents)
+        node_value = [ self.do_visit(rules, node, last, parents) ]
 
         # Gets the list of children,
         # visits each in turn, 
         # and flattens out all results
         # before returning.
-        return [ item for child  in self.list_children(rules, node, last, parents)
-                      for result in self.visit(rules, child, last, (node) + parents)
-                      for item in result
-                      if item ]
+        child_values = [ result for child  in self.list_children(rules, node, last, parents)
+                                for result in self.visit(rules, child, last, (node,) + parents) ]
+        return [ item for item in node_value + child_values if item is not None ]
 
     def list_children(self, rules, node, last, parents):
         """This provides the list of children to visit"""
@@ -45,7 +50,7 @@ class Visitor():
             (visitor, rules) = visitor_factory(rules)
             return visitor.visit(rules, node, node, (node) + parents)
         else:
-            return child
+            return node
 
     @abc.abstractmethod
     def should_visit(self, rules, child, node, last, parents):
@@ -64,11 +69,11 @@ class _IndexVisitor(Visitor):
         self.index = index
 
     def should_visit(self, rules, child, node, last, parents):
-        return node == last and child == self.index
+        return node == last and str(child) == str(self.index) # could be a dict key or an array index, but str covers both
 
     def do_visit(self, rules, node, last, parents):
-        if parents[0] == last:
-            return self.transition(self, rules, node, parents)
+        if len(parents) and parents[0] == last:
+            return self.transition(rules, node, parents)
 
 class _CurrentVisitor(Visitor):
     """Visits the current node only"""
@@ -85,7 +90,7 @@ class _ChildVisitor(Visitor):
         return node == last
 
     def do_visit(self, rules, node, last, parents):
-        if parents[0] == last:
+        if len(parents) and parents[0] == last:
             return self.transition(self, rules, node, parents)
 
 class _ComparisonVisitor(Visitor):
@@ -143,9 +148,16 @@ class _LessThanVisitor(_ComparisonVisitor):
 
 class _MatchesVisitor(_ComparisonVisitor):
     """Regular Expression Match"""
+    def matches(self, node, token):
+        return type(node) == types.StringTypes and re.matches(node, token)
 
 class _NegateVisitor(_ComparisonVisitor):
     """Wraps another comparison and negates it"""
+    def __init__(self, comparison):
+        self.comparison = comparison
+
+    def matches(self, node, token):
+        return not self.comparison.matches(node, token)
 
 visitor_map = {
         '==': _EqualsVisitor,
@@ -161,20 +173,20 @@ def visitor_factory(rules):
     rule = rules[0]
 
     if rule[1] == 'token':
-        pass
-    if rule[1] == 'operator':
+        return (_IndexVisitor(rule[0]), rules[1:])
+    elif rule[1] == 'operator':
         assert len(rules) > 1, 'Missing argument for operator %s' % rule[0]
 
         if rule[0] == '>':
-            if rules[1][1] in ('operator', 'token'):
+            if not len(rules) or rules[1][1] in ('operator', 'token'):
                 return (_ChildVisitor(), rules[1:])
             else:
-                return (_GreaterThanVisitor(rules[1]), rules[2:])
+                return (_GreaterThanVisitor(rules[1][0]), rules[2:])
         if rule[0] == '!':
             (condition, rules) = visitor_factory(rules[1:])
             return (_NegateVisitor(condition), rules)
         if rule in visitor_map:
-            return (visitor_map[rule](rules[1]), rules[2:])
+            return (visitor_map[rule](rules[1][0]), rules[2:])
         raise AssertionError('Unknown operator found, %s' % rule[0])
     else:
         raise AssertionError('Non operator found where operator expected')
