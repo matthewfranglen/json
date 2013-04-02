@@ -7,7 +7,13 @@ class TestParser(unittest.TestCase):
         self.assertEqual(results, expected)
 
     def test_index(self):
-        self._test([('0','token')], [1,2,3], [1])
+        # :Tab / \([\|{\)/l0
+        self._test([('0','token')],           [1,2,3],          [1])
+        self._test([('5','token')],           [1,2,3],          [])
+        self._test([('key','token')],         {'key': 'value'}, ['value'])
+        self._test([('another_key','token')], {'key': 'value'}, [])
+
+        self._test([('0','token'),('0','token')], [[1,2],2,3], [1])
 
     def test_equals(self):
         pass

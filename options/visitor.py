@@ -48,7 +48,7 @@ class Visitor():
         """
         if len(rules):
             (visitor, rules) = visitor_factory(rules)
-            return visitor.visit(rules, node, node, (node) + parents)
+            return visitor.visit(rules, node, node, (node,) + parents)
         else:
             return node
 
