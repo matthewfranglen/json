@@ -4,6 +4,8 @@ import json
 import re
 import abc
 
+from rule import Rule
+
 def parse_json(data):
     """
     Parses the data using the json library.
@@ -67,7 +69,7 @@ class _StringState(ArgumentParserState):
             string          += current
 
             if not escaped and current == quote:
-                return ((string, 'string'), data)
+                return (Rule(string, Rule.TYPE_STRING), data)
 
             escaped = not escaped and current == '\\'
 
@@ -80,7 +82,7 @@ class _NumberState(ArgumentParserState):
         number = "(?:\d+\.\d+|\.\d+|\d+\.|\d+)"
         match = re.match("^(-?%s(?:[eE]%s)?)(?![0-9.e])" % ( number, number ), data)
         if match:
-            return ((match.group(0), 'number'), data[match.end():])
+            return (Rule(match.group(0), Rule.TYPE_NUMBER), data[match.end():])
 
         raise SyntaxError('Invalid number, %s' % data)
 
@@ -104,7 +106,7 @@ class _TokenState(ArgumentParserState):
             elif current == closer:
                 count -= 1
                 if count <= 0:
-                    return ((parse_json(string), 'token'), data)
+                    return (Rule(parse_json(string), Rule.TYPE_TOKEN), data)
 
         raise SyntaxError('Unterminated token, %s' % string)
 
@@ -122,4 +124,4 @@ class _OperatorState(ArgumentParserState):
             string += data[0]
             data    = data[1:]
         
-        return ((string, 'operator'), data)
+        return (Rule(string, Rule.TYPE_OPERATOR), data)

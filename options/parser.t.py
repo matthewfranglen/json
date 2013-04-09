@@ -1,4 +1,5 @@
 from parser import parse_arguments
+from rule import Rule
 import unittest
 
 class TestParser(unittest.TestCase):
@@ -7,47 +8,59 @@ class TestParser(unittest.TestCase):
         self.assertEqual(tokens, expected)
 
     def test_string(self):
-        self._test("'hello'", [("'hello'", 'string')])
-        self._test('"hello"', [('"hello"', 'string')])
+        self._test("'hello'", [Rule("'hello'", Rule.TYPE_STRING)])
+        self._test('"hello"', [Rule('"hello"', Rule.TYPE_STRING)])
 
         for escapes in range(10):
             escape = '\\\\' * escapes
 
-            self._test("'hello%s' \"world%s\"" % (escape, escape), 
-                    [("'hello%s'" % escape, 'string'), ('"world%s"' % escape, 'string')])
-            
-            self._test("'hello %s\\'world%s\\''" % (escape, escape), 
-                    [("'hello %s\\'world%s\\''" % (escape, escape), 'string')])
+            self._test("'hello%s' \"world%s\"" % (escape, escape),
+                    [Rule("'hello%s'" % escape, Rule.TYPE_STRING), Rule('"world%s"' % escape, Rule.TYPE_STRING)])
 
-            self._test("'hello %s\\\\'\"world%s\\\\\"" % (escape, escape),              
-                    [("'hello %s\\\\'" % escape, 'string'), ('"world%s\\\\"' % escape, 'string')])
+            self._test("'hello %s\\'world%s\\''" % (escape, escape),
+                    [Rule("'hello %s\\'world%s\\''" % (escape, escape), Rule.TYPE_STRING)])
+
+            self._test("'hello %s\\\\'\"world%s\\\\\"" % (escape, escape),
+                    [Rule("'hello %s\\\\'" % escape, Rule.TYPE_STRING), Rule('"world%s\\\\"' % escape, Rule.TYPE_STRING)])
 
     def test_number(self):
-        self._test('-1',     [('-1', 'number')])
-        self._test('1',      [('1', 'number')])
-        self._test('1.0',    [('1.0', 'number')])
-        self._test('1.0e10', [('1.0e10', 'number')])
-        self._test('1e10.0', [('1e10.0', 'number')])
+        self._test('-1',     [Rule('-1',     Rule.TYPE_NUMBER)])
+        self._test('1',      [Rule('1',      Rule.TYPE_NUMBER)])
+        self._test('1.0',    [Rule('1.0',    Rule.TYPE_NUMBER)])
+        self._test('1.0e10', [Rule('1.0e10', Rule.TYPE_NUMBER)])
+        self._test('1e10.0', [Rule('1e10.0', Rule.TYPE_NUMBER)])
 
-        self._test('-100 0 1e10 2.02 3.33e33.3', [('-100', 'number'),('0', 'number'),('1e10', 'number'),('2.02', 'number'),('3.33e33.3', 'number')])
+        self._test('-100 0 1e10 2.02 3.33e33.3',
+                    [ Rule('-100',      Rule.TYPE_NUMBER),
+                      Rule('0',         Rule.TYPE_NUMBER),
+                      Rule('1e10',      Rule.TYPE_NUMBER),
+                      Rule('2.02',      Rule.TYPE_NUMBER),
+                      Rule('3.33e33.3', Rule.TYPE_NUMBER)])
 
     def test_token(self):
-        self._test('[1, 2, 3]',                                [([1, 2, 3], "token")])
-        self._test('{ "key": "value" }',                       [({ "key": "value" }, "token")])
-        self._test('{ "key": [1, 2, 3] }',                     [({ "key": [1, 2, 3] }, "token")])
-        self._test('{ "key": [1, 2, { "key": "value" } ] }',   [({ "key": [1, 2, { "key": "value" } ] }, "token")])
-        self._test('[1, 2, 3] { "key": "value" } [ 4, 5, 6 ]', [([1, 2, 3], "token"),({ "key": "value" }, "token"),([ 4, 5, 6 ], "token")])
+        self._test('[1, 2, 3]',                              [Rule([1, 2, 3],                              Rule.TYPE_TOKEN)])
+        self._test('{ "key": "value" }',                     [Rule({ "key": "value" },                     Rule.TYPE_TOKEN)])
+        self._test('{ "key": [1, 2, 3] }',                   [Rule({ "key": [1, 2, 3] },                   Rule.TYPE_TOKEN)])
+        self._test('{ "key": [1, 2, { "key": "value" } ] }', [Rule({ "key": [1, 2, { "key": "value" } ] }, Rule.TYPE_TOKEN)])
+
+        self._test('[1, 2, 3] { "key": "value" } [ 4, 5, 6 ]',
+                    [ Rule([1, 2, 3],          Rule.TYPE_TOKEN),
+                      Rule({ "key": "value" }, Rule.TYPE_TOKEN),
+                      Rule([ 4, 5, 6 ],        Rule.TYPE_TOKEN)])
 
     def test_operator(self):
-        self._test('==', [('==', 'operator')])
-        self._test('=',  [('=', 'operator')])
-        self._test('>',  [('>', 'operator')])
-        self._test('<',  [('<', 'operator')])
-        self._test('~',  [('~', 'operator')])
-        self._test('!',  [('!', 'operator')])
-        self._test(':',  [(':', 'operator')])
+        self._test('==', [Rule('==', Rule.TYPE_OPERATOR)])
+        self._test('=',  [Rule('=',  Rule.TYPE_OPERATOR)])
+        self._test('>',  [Rule('>',  Rule.TYPE_OPERATOR)])
+        self._test('<',  [Rule('<',  Rule.TYPE_OPERATOR)])
+        self._test('~',  [Rule('~',  Rule.TYPE_OPERATOR)])
+        self._test('!',  [Rule('!',  Rule.TYPE_OPERATOR)])
+        self._test(':',  [Rule(':',  Rule.TYPE_OPERATOR)])
 
-        self._test('>>>', [('>', 'operator'),('>', 'operator'),('>', 'operator')])
+        self._test('>>>',
+                    [ Rule('>', Rule.TYPE_OPERATOR),
+                      Rule('>', Rule.TYPE_OPERATOR),
+                      Rule('>', Rule.TYPE_OPERATOR)])
 
     def test_invalid(self):
         with self.assertRaises(SyntaxError):

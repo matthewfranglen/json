@@ -4,6 +4,8 @@ import abc
 import types
 import re
 
+from rule import Rule
+
 def visit(rules, node):
     """Visits the node according to the provided rules, returning the matches."""
     (visitor, rules) = visitor_factory(rules)
@@ -169,22 +171,22 @@ def visitor_factory(rules):
 
     rule = rules[0]
 
-    if rule[1] == 'token':
-        return (_IndexVisitor(rule[0]), rules[1:])
-    elif rule[1] == 'operator':
-        assert len(rules) > 1, 'Missing argument for operator %s' % rule[0]
+    if rule.type == Rule.TYPE_TOKEN:
+        return (_IndexVisitor(rule.value), rules[1:])
+    elif rule.type == Rule.TYPE_OPERATOR:
+        assert len(rules) > 1, 'Missing argument for operator %s' % rule.value
 
-        if rule[0] == '>':
-            if not len(rules) or rules[1][1] in ('operator', 'token'):
+        if rule.value == '>':
+            if not len(rules) or rules[1].type in (Rule.TYPE_OPERATOR, Rule.TYPE_TOKEN):
                 return (_ChildVisitor(), rules[1:])
             else:
-                return (_GreaterThanVisitor(rules[1][0]), rules[2:])
+                return (_GreaterThanVisitor(rules[1].value), rules[2:])
         if rule[0] == '!':
             (condition, rules) = visitor_factory(rules[1:])
             return (_NegateVisitor(condition), rules)
         if rule in visitor_map:
-            return (visitor_map[rule](rules[1][0]), rules[2:])
-        raise AssertionError('Unknown operator found, %s' % rule[0])
+            return (visitor_map[rule.value](rules[1].value), rules[2:])
+        raise AssertionError('Unknown operator found, %s' % rule.value)
     else:
         raise AssertionError('Non operator found where operator expected')
 

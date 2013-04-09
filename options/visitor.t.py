@@ -1,4 +1,5 @@
 from visitor import visit
+from rule import Rule
 import unittest
 
 class TestParser(unittest.TestCase):
@@ -8,26 +9,26 @@ class TestParser(unittest.TestCase):
 
     def test_index(self):
         # :Tab / \([\|{\)/l0
-        self._test([('0','token')],           [1,2,3],          [1])
-        self._test([('5','token')],           [1,2,3],          [])
-        self._test([('key','token')],         {'key': 'value'}, ['value'])
-        self._test([('another_key','token')], {'key': 'value'}, [])
+        self._test([Rule('0',Rule.TYPE_TOKEN)],           [1,2,3],          [1])
+        self._test([Rule('5',Rule.TYPE_TOKEN)],           [1,2,3],          [])
+        self._test([Rule('key',Rule.TYPE_TOKEN)],         {'key': 'value'}, ['value'])
+        self._test([Rule('another_key',Rule.TYPE_TOKEN)], {'key': 'value'}, [])
 
-        self._test([('0','token'),('0','token')],     [[1,2],2,3],               [1])
-        self._test([('1','token'),('0','token')],     [[1,2],2,3],               [])
-        self._test([('0','token'),('2','token')],     [[1,2],2,3],               [])
+        self._test([Rule('0',Rule.TYPE_TOKEN),Rule('0',Rule.TYPE_TOKEN)],     [[1,2],2,3],               [1])
+        self._test([Rule('1',Rule.TYPE_TOKEN),Rule('0',Rule.TYPE_TOKEN)],     [[1,2],2,3],               [])
+        self._test([Rule('0',Rule.TYPE_TOKEN),Rule('2',Rule.TYPE_TOKEN)],     [[1,2],2,3],               [])
 
-        self._test([('0','token'),('key','token')],   [{'key': 'value'},2,3],    ['value'])
-        self._test([('4','token'),('key','token')],   [{'key': 'value'},2,3],    [])
-        self._test([('0','token'),('ttt','token')],   [{'key': 'value'},2,3],    [])
+        self._test([Rule('0',Rule.TYPE_TOKEN),Rule('key',Rule.TYPE_TOKEN)],   [{'key': 'value'},2,3],    ['value'])
+        self._test([Rule('4',Rule.TYPE_TOKEN),Rule('key',Rule.TYPE_TOKEN)],   [{'key': 'value'},2,3],    [])
+        self._test([Rule('0',Rule.TYPE_TOKEN),Rule('ttt',Rule.TYPE_TOKEN)],   [{'key': 'value'},2,3],    [])
 
-        self._test([('key','token'),('0','token')],   {'key': [1,2]},            [1])
-        self._test([('ttt','token'),('0','token')],   {'key': [1,2]},            [])
-        self._test([('key','token'),('2','token')],   {'key': [1,2]},            [])
+        self._test([Rule('key',Rule.TYPE_TOKEN),Rule('0',Rule.TYPE_TOKEN)],   {'key': [1,2]},            [1])
+        self._test([Rule('ttt',Rule.TYPE_TOKEN),Rule('0',Rule.TYPE_TOKEN)],   {'key': [1,2]},            [])
+        self._test([Rule('key',Rule.TYPE_TOKEN),Rule('2',Rule.TYPE_TOKEN)],   {'key': [1,2]},            [])
 
-        self._test([('key','token'),('key','token')], {'key': {'key': 'value'}}, ['value'])
-        self._test([('ttt','token'),('key','token')], {'key': {'key': 'value'}}, [])
-        self._test([('key','token'),('ttt','token')], {'key': {'key': 'value'}}, [])
+        self._test([Rule('key',Rule.TYPE_TOKEN),Rule('key',Rule.TYPE_TOKEN)], {'key': {'key': 'value'}}, ['value'])
+        self._test([Rule('ttt',Rule.TYPE_TOKEN),Rule('key',Rule.TYPE_TOKEN)], {'key': {'key': 'value'}}, [])
+        self._test([Rule('key',Rule.TYPE_TOKEN),Rule('ttt',Rule.TYPE_TOKEN)], {'key': {'key': 'value'}}, [])
 
     def test_equals(self):
         pass
