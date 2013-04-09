@@ -13,7 +13,21 @@ class TestParser(unittest.TestCase):
         self._test([('key','token')],         {'key': 'value'}, ['value'])
         self._test([('another_key','token')], {'key': 'value'}, [])
 
-        self._test([('0','token'),('0','token')], [[1,2],2,3], [1])
+        self._test([('0','token'),('0','token')],     [[1,2],2,3],               [1])
+        self._test([('1','token'),('0','token')],     [[1,2],2,3],               [])
+        self._test([('0','token'),('2','token')],     [[1,2],2,3],               [])
+
+        self._test([('0','token'),('key','token')],   [{'key': 'value'},2,3],    ['value'])
+        self._test([('4','token'),('key','token')],   [{'key': 'value'},2,3],    [])
+        self._test([('0','token'),('ttt','token')],   [{'key': 'value'},2,3],    [])
+
+        self._test([('key','token'),('0','token')],   {'key': [1,2]},            [1])
+        self._test([('ttt','token'),('0','token')],   {'key': [1,2]},            [])
+        self._test([('key','token'),('2','token')],   {'key': [1,2]},            [])
+
+        self._test([('key','token'),('key','token')], {'key': {'key': 'value'}}, ['value'])
+        self._test([('ttt','token'),('key','token')], {'key': {'key': 'value'}}, [])
+        self._test([('key','token'),('ttt','token')], {'key': {'key': 'value'}}, [])
 
     def test_equals(self):
         pass

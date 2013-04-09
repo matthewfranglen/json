@@ -22,15 +22,12 @@ class Visitor():
             last    - the node that triggered the last rule change (i.e. the last accepted node)
             parents - the list of parent nodes, all the way to the root.
         """
-        node_value = [ self.do_visit(rules, node, last, parents) ]
+        node_value   = [ self.do_visit(rules, node, last, parents) ]
+        child_values = [ self.visit(rules, child, last, (node,) + parents) for child in self.list_children(rules, node, last, parents) ]
 
-        # Gets the list of children,
-        # visits each in turn, 
-        # and flattens out all results
-        # before returning.
-        child_values = [ result for child  in self.list_children(rules, node, last, parents)
-                                for result in self.visit(rules, child, last, (node,) + parents) ]
-        return [ item for item in node_value + child_values if item is not None ]
+        # Combine lists and flatten
+        return [ item for list in node_value + child_values if list is not None
+                      for item in list ]
 
     def list_children(self, rules, node, last, parents):
         """This provides the list of children to visit"""
@@ -38,7 +35,7 @@ class Visitor():
         if type(node) is types.ListType:
             return [ node[child] for child in range(len(node)) if self.should_visit(rules, child, node, last, parents) ]
         if type(node) is types.DictionaryType:
-            return [ node[child] for child in node.keys() if self.should_visit(rules, child, node, last, parents) ]
+            return [ node[child] for child in node.keys()      if self.should_visit(rules, child, node, last, parents) ]
         return []
 
     def transition(self, rules, node, parents):
@@ -48,9 +45,9 @@ class Visitor():
         """
         if len(rules):
             (visitor, rules) = visitor_factory(rules)
-            return visitor.visit(rules, node, node, (node,) + parents)
+            return visitor.visit(rules, node, node, parents)
         else:
-            return node
+            return [ node ]
 
     @abc.abstractmethod
     def should_visit(self, rules, child, node, last, parents):
@@ -72,7 +69,7 @@ class _IndexVisitor(Visitor):
         return node == last and str(child) == str(self.index) # could be a dict key or an array index, but str covers both
 
     def do_visit(self, rules, node, last, parents):
-        if len(parents) and parents[0] == last:
+        if len(parents) and parents[0] is last:
             return self.transition(rules, node, parents)
 
 class _CurrentVisitor(Visitor):
