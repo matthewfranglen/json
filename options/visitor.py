@@ -65,7 +65,7 @@ class _IndexVisitor(Visitor):
     """Visits a specific index of the child"""
     
     def __init__(self, index):
-        self.index = index
+        self.index = index[0]
 
     def should_visit(self, rules, child, node, last, parents):
         return node == last and str(child) == str(self.index) # could be a dict key or an array index, but str covers both
