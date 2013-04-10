@@ -49,10 +49,16 @@ class TestParser(unittest.TestCase):
         pass
 
     def test_current(self):
-        pass
+        self._test([Rule(':',Rule.TYPE_OPERATOR)], [1,2,3],          [[1,2,3]])
+        self._test([Rule(':',Rule.TYPE_OPERATOR)], [[1,2,3]],        [[[1,2,3]]])
+        self._test([Rule(':',Rule.TYPE_OPERATOR)], {'key': 'value'}, [{'key': 'value'}])
+        self._test([Rule(':',Rule.TYPE_OPERATOR)], {'key': [1,2,3]}, [{'key': [1,2,3]}])
 
     def test_child(self):
-        pass
+        self._test([Rule('>',Rule.TYPE_OPERATOR)], [1,2,3],          [1,2,3])
+        self._test([Rule('>',Rule.TYPE_OPERATOR)], [[1,2,3]],        [[1,2,3]])
+        self._test([Rule('>',Rule.TYPE_OPERATOR)], {'key': 'value'}, ['value'])
+        self._test([Rule('>',Rule.TYPE_OPERATOR)], {'key': [1,2,3]}, [[1,2,3]])
 
 if __name__ == '__main__':
     unittest.main()

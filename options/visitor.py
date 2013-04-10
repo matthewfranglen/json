@@ -80,7 +80,7 @@ class _CurrentVisitor(Visitor):
     def should_visit(self, rules, child, node, last, parents):
         return 0
     def do_visit(self, rules, node, last, parents):
-        return self.transition(self, rules, node, parents)
+        return self.transition(rules, node, parents)
 
 class _ChildVisitor(Visitor):
     """Visits the current children only"""
@@ -90,7 +90,7 @@ class _ChildVisitor(Visitor):
 
     def do_visit(self, rules, node, last, parents):
         if len(parents) and parents[0] == last:
-            return self.transition(self, rules, node, parents)
+            return self.transition(rules, node, parents)
 
 class _ComparisonVisitor(Visitor):
     """Boolean comparisons"""
@@ -108,7 +108,7 @@ class _ComparisonVisitor(Visitor):
 
     def do_visit(self, rules, node, last, parents):
         if self.matches(node, rules[0], self.token):
-            return self.transition(self, rules, node, parents)
+            return self.transition(rules, node, parents)
 
 class _EqualsVisitor(_ComparisonVisitor):
     """Absolute Equality"""
@@ -174,13 +174,16 @@ def visitor_factory(rules):
     if rule.type == Rule.TYPE_TOKEN:
         return (_IndexVisitor(rule.value), rules[1:])
     elif rule.type == Rule.TYPE_OPERATOR:
+        if rule.value == '>':
+            if len(rules) > 1 and rules[1].type not in (Rule.TYPE_OPERATOR, Rule.TYPE_TOKEN):
+                return (_GreaterThanVisitor(rules[1].value), rules[2:])
+            else:
+                return (_ChildVisitor(), rules[1:])
+        if rule.value == ':':
+            return (_CurrentVisitor(), rules[1:])
+
         assert len(rules) > 1, 'Missing argument for operator %s' % rule.value
 
-        if rule.value == '>':
-            if not len(rules) or rules[1].type in (Rule.TYPE_OPERATOR, Rule.TYPE_TOKEN):
-                return (_ChildVisitor(), rules[1:])
-            else:
-                return (_GreaterThanVisitor(rules[1].value), rules[2:])
         if rule[0] == '!':
             (condition, rules) = visitor_factory(rules[1:])
             return (_NegateVisitor(condition), rules)
