@@ -107,7 +107,7 @@ class _ComparisonVisitor(Visitor):
         return 0
 
     def do_visit(self, rules, node, last, parents):
-        if self.matches(node, rules[0], self.token):
+        if self.matches(node, self.token):
             return self.transition(rules, node, parents)
 
 class _EqualsVisitor(_ComparisonVisitor):
@@ -138,12 +138,12 @@ class _PermissiveEqualsVisitor(_ComparisonVisitor):
 class _GreaterThanVisitor(_ComparisonVisitor):
     """>"""
     def matches(self, node, token):
-        return type(node) in (types.StringTypes, types.FloatType, types.IntType, types.LongType) and node > token
+        return type(node) in types.StringTypes + (types.FloatType, types.IntType, types.LongType) and node > token
 
 class _LessThanVisitor(_ComparisonVisitor):
     """<"""
     def matches(self, node, token):
-        return type(node) in (types.StringTypes, types.FloatType, types.IntType, types.LongType) and node < token
+        return type(node) in types.StringTypes + (types.FloatType, types.IntType, types.LongType) and node < token
 
 class _MatchesVisitor(_ComparisonVisitor):
     """Regular Expression Match"""
@@ -184,10 +184,10 @@ def visitor_factory(rules):
 
         assert len(rules) > 1, 'Missing argument for operator %s' % rule.value
 
-        if rule[0] == '!':
+        if rule.value == '!':
             (condition, rules) = visitor_factory(rules[1:])
             return (_NegateVisitor(condition), rules)
-        if rule in visitor_map:
+        if rule.value in visitor_map:
             return (visitor_map[rule.value](rules[1].value), rules[2:])
         raise AssertionError('Unknown operator found, %s' % rule.value)
     else:

@@ -37,10 +37,18 @@ class TestParser(unittest.TestCase):
         pass
 
     def test_greater_than(self):
-        pass
+        self._test([Rule('>',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   [1,2,3], [])
+        self._test([Rule('>',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   1,       [])
+        self._test([Rule('>',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   11,      [11])
+        self._test([Rule('>',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'a',     [])
+        self._test([Rule('>',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'z',     ['z'])
 
     def test_less_than(self):
-        pass
+        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], [1,2,3], [])
+        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], 1, [1])
+        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], 11, [])
+        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'a',     ['a'])
+        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'z',     [])
 
     def test_matches(self):
         pass
@@ -54,11 +62,15 @@ class TestParser(unittest.TestCase):
         self._test([Rule(':',Rule.TYPE_OPERATOR)], {'key': 'value'}, [{'key': 'value'}])
         self._test([Rule(':',Rule.TYPE_OPERATOR)], {'key': [1,2,3]}, [{'key': [1,2,3]}])
 
+        self._test([Rule(':',Rule.TYPE_OPERATOR),Rule(':',Rule.TYPE_OPERATOR),Rule(':',Rule.TYPE_OPERATOR)], {'key': [1,2,3]}, [{'key': [1,2,3]}])
+
     def test_child(self):
         self._test([Rule('>',Rule.TYPE_OPERATOR)], [1,2,3],          [1,2,3])
         self._test([Rule('>',Rule.TYPE_OPERATOR)], [[1,2,3]],        [[1,2,3]])
         self._test([Rule('>',Rule.TYPE_OPERATOR)], {'key': 'value'}, ['value'])
         self._test([Rule('>',Rule.TYPE_OPERATOR)], {'key': [1,2,3]}, [[1,2,3]])
+
+        self._test([Rule('>',Rule.TYPE_OPERATOR),Rule('>',Rule.TYPE_OPERATOR),Rule('>',Rule.TYPE_OPERATOR)], {'key': [[1,2,3],2,3]}, [1,2,3])
 
 if __name__ == '__main__':
     unittest.main()
