@@ -31,7 +31,12 @@ class TestParser(unittest.TestCase):
         self._test([Rule('key',Rule.TYPE_TOKEN),Rule('ttt',Rule.TYPE_TOKEN)], {'key': {'key': 'value'}}, [])
 
     def test_equals(self):
-        pass
+        self._test([Rule('==',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], [1,2,5], [])
+        self._test([Rule('==',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], 5,       [5])
+
+        self._test([Rule('==',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'a',     [])
+        self._test([Rule('==',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'm',     ['m'])
+
 
     def test_permissive_equals(self):
         pass
