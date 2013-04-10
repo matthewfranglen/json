@@ -148,7 +148,7 @@ class _LessThanVisitor(_ComparisonVisitor):
 class _MatchesVisitor(_ComparisonVisitor):
     """Regular Expression Match"""
     def matches(self, node, token):
-        return type(node) == types.StringTypes and re.matches(node, token)
+        return type(node) in types.StringTypes and re.match(token, node)
 
 class _NegateVisitor(_ComparisonVisitor):
     """Wraps another comparison and negates it"""

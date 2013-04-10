@@ -8,7 +8,7 @@ class TestParser(unittest.TestCase):
         self.assertEqual(results, expected)
 
     def test_index(self):
-        # :Tab / \([\|{\)/l0
+        # :Tab / \S\S*/l0
         self._test([Rule('0',Rule.TYPE_TOKEN)],           [1,2,3],          [1])
         self._test([Rule('5',Rule.TYPE_TOKEN)],           [1,2,3],          [])
         self._test([Rule('key',Rule.TYPE_TOKEN)],         {'key': 'value'}, ['value'])
@@ -44,14 +44,15 @@ class TestParser(unittest.TestCase):
         self._test([Rule('>',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'z',     ['z'])
 
     def test_less_than(self):
-        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], [1,2,3], [])
-        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], 1, [1])
-        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], 11, [])
+        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   [1,2,3], [])
+        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   1,       [1])
+        self._test([Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   11,      [])
         self._test([Rule('<',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'a',     ['a'])
         self._test([Rule('<',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'z',     [])
 
     def test_matches(self):
-        pass
+        self._test([Rule('~',Rule.TYPE_OPERATOR),Rule('.a.*',Rule.TYPE_STRING)], 'aardvark', ['aardvark'])
+        self._test([Rule('~',Rule.TYPE_OPERATOR),Rule('.a.*',Rule.TYPE_STRING)], 'anteater', [])
 
     def test_negate(self):
         pass
