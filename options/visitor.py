@@ -97,7 +97,7 @@ class _ComparisonVisitor(Visitor):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, token):
-        self.token = token
+        self.get_token = lambda: token
 
     @abc.abstractmethod
     def matches(self, node, token):
@@ -107,7 +107,7 @@ class _ComparisonVisitor(Visitor):
         return 0
 
     def do_visit(self, rules, node, last, parents):
-        if self.matches(node, self.token):
+        if self.matches(node, self.get_token()):
             return self.transition(rules, node, parents)
 
 class _EqualsVisitor(_ComparisonVisitor):
@@ -153,6 +153,8 @@ class _MatchesVisitor(_ComparisonVisitor):
 class _NegateVisitor(_ComparisonVisitor):
     """Wraps another comparison and negates it"""
     def __init__(self, comparison):
+        super(_NegateVisitor, self).__init__(None)
+        self.get_token = lambda: comparison.get_token()
         self.comparison = comparison
 
     def matches(self, node, token):

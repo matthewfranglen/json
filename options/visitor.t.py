@@ -66,7 +66,44 @@ class TestParser(unittest.TestCase):
         self._test([Rule('~',Rule.TYPE_OPERATOR),Rule('.a.*',Rule.TYPE_STRING)], 'anteater', [])
 
     def test_negate(self):
-        pass
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],
+                [1,2,5], [[1,2,5]])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],
+                5, [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)],
+                'a', ['a'])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)],
+                'm', [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule([1,2,3],Rule.TYPE_TOKEN)],
+                [1,2,3], [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule({'key': 'value'},Rule.TYPE_TOKEN)],
+                {'key': 'value'}, [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule([[1,2],2,3],Rule.TYPE_TOKEN)],
+                [[1,2],2,3], [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule({'key': [1,2,3]},Rule.TYPE_TOKEN)],
+                {'key': [1,2,3]}, [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule({'key': {'key': 'value'}},Rule.TYPE_TOKEN)],
+                {'key': {'key': 'value'}}, [])
+
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],
+                [1,2,5], [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('!',Rule.TYPE_OPERATOR),Rule('==',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],
+                5, [5])
+
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('>',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   [1,2,3], [[1,2,3]])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('>',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   1,       [1])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('>',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   11,      [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('>',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'a',     ['a'])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('>',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'z',     [])
+
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   [1,2,3], [[1,2,3]])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   1,       [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('<',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   11,      [11])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('<',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'a',     [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('<',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'z',     ['z'])
+
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('~',Rule.TYPE_OPERATOR),Rule('.a.*',Rule.TYPE_STRING)], 'aardvark', [])
+        self._test([Rule('!',Rule.TYPE_OPERATOR),Rule('~',Rule.TYPE_OPERATOR),Rule('.a.*',Rule.TYPE_STRING)], 'anteater', ['anteater'])
 
     def test_current(self):
         self._test([Rule(':',Rule.TYPE_OPERATOR)], [1,2,3],          [[1,2,3]])
