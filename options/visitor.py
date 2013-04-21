@@ -132,7 +132,7 @@ class _EqualsVisitor(_ComparisonVisitor):
             return not len([ 'fail' for k in node.keys() if k not in token or not self.matches(node[k], token[k]) ])
         return 0
 
-class _PermissiveEqualsVisitor(_ComparisonVisitor):
+class _PermissiveEqualsVisitor(_EqualsVisitor):
     """Permissive Equality"""
 
     # Remember to cover situation when token has multiple duplicate elements

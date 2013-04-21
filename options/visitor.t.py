@@ -45,7 +45,28 @@ class TestParser(unittest.TestCase):
         self._test([Rule('==',Rule.TYPE_OPERATOR),Rule({'key': {'key': 'value'}},Rule.TYPE_TOKEN)], {'key': {'key': 'value'}}, [{'key': {'key': 'value'}}])
 
     def test_permissive_equals(self):
-        pass
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], [1,2,5], [])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)], 5,       [5])
+
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'a', [])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule('m',Rule.TYPE_STRING)], 'm', ['m'])
+
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule([1,2,3],Rule.TYPE_TOKEN)],          [1,2,3],          [[1,2,3]])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule({'key': 'value'},Rule.TYPE_TOKEN)], {'key': 'value'}, [{'key': 'value'}])
+
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule([[1,2],2,3],Rule.TYPE_TOKEN)],               [[1,2],2,3],               [[[1,2],2,3]])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule({'key': [1,2,3]},Rule.TYPE_TOKEN)],          {'key': [1,2,3]},          [{'key': [1,2,3]}])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule({'key': {'key': 'value'}},Rule.TYPE_TOKEN)], {'key': {'key': 'value'}}, [{'key': {'key': 'value'}}])
+
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule([1,2,3],Rule.TYPE_TOKEN)],          [1,2,3,4,5],          [[1,2,3,4,5]])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule({'key': 'value'},Rule.TYPE_TOKEN)], {'key': 'value', 'y': 'value'}, [{'key': 'value', 'y': 'value'}])
+
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule([2,3],Rule.TYPE_TOKEN)],        [[1,2],2,3],               [[[1,2],2,3]])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule([[1,2]],Rule.TYPE_TOKEN)],      [[1,2],2,3],               [[[1,2],2,3]])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule([[1],2],Rule.TYPE_TOKEN)],      [[1,2],2,3],               [[[1,2],2,3]])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule({'key': []},Rule.TYPE_TOKEN)],  {'key': [1,2,3]},          [{'key': [1,2,3]}])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule({'key': [1]},Rule.TYPE_TOKEN)], {'key': [1,2,3]},          [{'key': [1,2,3]}])
+        self._test([Rule('=',Rule.TYPE_OPERATOR),Rule({'key': {}},Rule.TYPE_TOKEN)],  {'key': {'key': 'value'}}, [{'key': {'key': 'value'}}])
 
     def test_greater_than(self):
         self._test([Rule('>',Rule.TYPE_OPERATOR),Rule(5,Rule.TYPE_NUMBER)],   [1,2,3], [])
