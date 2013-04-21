@@ -135,6 +135,25 @@ class _EqualsVisitor(_ComparisonVisitor):
 class _PermissiveEqualsVisitor(_ComparisonVisitor):
     """Permissive Equality"""
 
+    # Remember to cover situation when token has multiple duplicate elements
+    # That could be used to set a lower bound on the number of those elements
+    def list_matches(self, node, token):
+        for t in token:
+            found = 0
+            for n in node:
+                if self.matches(n, t):
+                    found = 1
+                    break
+            if found == 0:
+                return 0
+        return 1
+
+    def dict_matches(self, node, token):
+        for k in token.keys():
+            if k not in node or not self.matches(node[k], token[k]):
+                return 0
+        return 1
+
 class _GreaterThanVisitor(_ComparisonVisitor):
     """>"""
     def matches(self, node, token):
