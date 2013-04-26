@@ -1,4 +1,4 @@
-# json path [file, file, file...]
+# cat file | cl_json path
 
 This prints all the values at path for the json provided. The json will come from standard in as well as any specified files.
 
