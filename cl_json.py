@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from options.parser  import parse_json, parse_arguments
 from options.visitor import visit
+from options.printer import print_json
 from sys             import argv, stdin
 
 def help():
@@ -24,4 +25,4 @@ if __name__ == "__main__":
         rules  = parse_arguments(" ".join(argv[1:]))
         result = visit(rules, json)
 
-        print result
+        print print_json(result)
